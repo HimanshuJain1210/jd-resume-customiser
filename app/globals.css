@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  /* Editorial ink-on-paper palette with a single ink-blue accent */
+  --paper: #FBFAF7;
+  --paper-2: #F3F1EB;
+  --ink: #1B1B1A;
+  --ink-soft: #55534E;
+  --line: #E2DFD7;
+  --accent: #1F4E5F;     /* deep teal-ink */
+  --accent-2: #C2462D;   /* vermilion, used sparingly */
+  --good: #2F6B4F;
+  --warn: #B8761F;
+  --bad: #B23A2E;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-sans-ui {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* subtle paper grain via layered gradients */
+.paper-bg {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(31,78,95,0.035), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(194,70,45,0.03), transparent 40%);
+}
+
+.rule {
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.eyebrow {
+  font-family: "Inter", system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.45; }
+
+.input-field {
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(31,78,95,0.10);
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: riseIn 0.4s ease both; }
+.rise-2 { animation: riseIn 0.4s ease 0.06s both; }
+.rise-3 { animation: riseIn 0.4s ease 0.12s both; }
+
+@keyframes drawBar {
+  from { width: 0; }
+}
+.bar-fill { animation: drawBar 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .rise-2, .rise-3, .bar-fill { animation: none; }
+}
