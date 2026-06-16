@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
@@ -19,6 +19,28 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CustomizeResult | null>(null);
   const [err, setErr] = useState("");
+  const [parsing, setParsing] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr(""); setParsing(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/parse-resume", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Couldn't read that file.");
+      setResume(data.text);
+      setResumeSaved(false);
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Couldn't read that file.");
+    } finally {
+      setParsing(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
 
   const loadResume = useCallback(async (uid: string) => {
     const { data } = await supabase.from("resumes").select("raw_text").eq("user_id", uid).single();
@@ -87,9 +109,26 @@ export default function Dashboard() {
                 <p className="eyebrow">Step 1</p>
                 <h2 className="text-lg font-medium">Your resume</h2>
               </div>
-              <button onClick={saveResume} className="btn-primary px-4 py-1.5 text-sm">
-                {resumeSaved ? "Saved ✓" : "Save"}
-              </button>
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".docx,.pdf"
+                  onChange={handleFile}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  disabled={parsing}
+                  className="font-sans-ui text-sm px-3 py-1.5 rounded-[10px] border"
+                  style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
+                >
+                  {parsing ? "Reading…" : "Upload .docx / .pdf"}
+                </button>
+                <button onClick={saveResume} className="btn-primary px-4 py-1.5 text-sm">
+                  {resumeSaved ? "Saved ✓" : "Save"}
+                </button>
+              </div>
             </div>
             <textarea
               value={resume}

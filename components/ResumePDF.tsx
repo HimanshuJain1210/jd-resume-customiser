@@ -14,18 +14,50 @@ import type { CustomizeResult } from "@/lib/types";
 // no tables, no graphics, no columns that confuse parsers.
 
 const s = StyleSheet.create({
-  page: { paddingTop: 36, paddingBottom: 36, paddingHorizontal: 44, fontSize: 10, fontFamily: "Helvetica", color: "#1a1a1a", lineHeight: 1.4 },
-  name: { fontSize: 20, fontFamily: "Helvetica-Bold", marginBottom: 2, color: "#1F4E5F" },
-  contact: { fontSize: 9, color: "#444", marginBottom: 10 },
-  sectionTitle: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 12, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1pt solid #1F4E5F", paddingBottom: 2, color: "#1F4E5F" },
-  summary: { marginBottom: 2 },
-  jobHeaderRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
-  jobTitle: { fontFamily: "Helvetica-Bold" },
-  jobMeta: { fontSize: 9, color: "#444" },
-  bullet: { flexDirection: "row", marginTop: 2, paddingLeft: 4 },
-  bulletDot: { width: 8 },
+  page: {
+    paddingTop: 48,
+    paddingBottom: 48,
+    paddingHorizontal: 54,
+    fontSize: 10,
+    fontFamily: "Helvetica",
+    color: "#222",
+    lineHeight: 1.45,
+  },
+  name: { fontSize: 22, fontFamily: "Helvetica-Bold", marginBottom: 5, color: "#1F4E5F" },
+  contact: { fontSize: 9, color: "#555", marginBottom: 2 },
+  sectionTitle: {
+    fontSize: 10.5,
+    fontFamily: "Helvetica-Bold",
+    marginTop: 18,
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    borderBottom: "0.75pt solid #1F4E5F",
+    paddingBottom: 3,
+    color: "#1F4E5F",
+  },
+  summary: { marginBottom: 0 },
+  job: { marginBottom: 12 },
+  jobHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 2,
+  },
+  jobTitle: { fontFamily: "Helvetica-Bold", fontSize: 10.5 },
+  jobMeta: { fontSize: 9, color: "#666" },
+  jobLocation: { fontSize: 9, color: "#666", marginBottom: 3 },
+  bullet: { flexDirection: "row", marginTop: 4, paddingRight: 4 },
+  bulletDot: { width: 12, color: "#1F4E5F" },
   bulletText: { flex: 1 },
-  skillsLine: { marginTop: 2 },
+  skillsLine: { marginBottom: 0 },
+  projDesc: { marginBottom: 1, marginTop: 1 },
+  eduRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 6,
+  },
 });
 
 function Bullet({ children }: { children: string }) {
@@ -38,7 +70,7 @@ function Bullet({ children }: { children: string }) {
 }
 
 export default function ResumePDF({ data }: { data: CustomizeResult }) {
-  const r = data?.tailored_resume ?? {};
+  const r = data?.tailored_resume ?? ({} as Partial<CustomizeResult["tailored_resume"]>);
   const contact = r.contact ?? {};
   const contactLine = [
     contact.email,
@@ -72,8 +104,8 @@ export default function ResumePDF({ data }: { data: CustomizeResult }) {
         {Array.isArray(r.experience) && r.experience.length ? (
           <>
             <Text style={s.sectionTitle}>Experience</Text>
-            {r.experience.map((job: any, i: number) => (
-              <View key={i} wrap={false}>
+            {r.experience.map((job, i) => (
+              <View key={i} wrap={false} style={s.job}>
                 <View style={s.jobHeaderRow}>
                   <Text style={s.jobTitle}>
                     {job.title}
@@ -81,8 +113,8 @@ export default function ResumePDF({ data }: { data: CustomizeResult }) {
                   </Text>
                   <Text style={s.jobMeta}>{job.dates}</Text>
                 </View>
-                {job.location ? <Text style={s.jobMeta}>{job.location}</Text> : null}
-                {(job.bullets ?? []).map((b: string, j: number) => (
+                {job.location ? <Text style={s.jobLocation}>{job.location}</Text> : null}
+                {(job.bullets ?? []).map((b, j) => (
                   <Bullet key={j}>{b}</Bullet>
                 ))}
               </View>
@@ -93,11 +125,11 @@ export default function ResumePDF({ data }: { data: CustomizeResult }) {
         {Array.isArray(r.projects) && r.projects.length ? (
           <>
             <Text style={s.sectionTitle}>Projects</Text>
-            {r.projects.map((p: any, i: number) => (
-              <View key={i} wrap={false}>
+            {r.projects.map((p, i) => (
+              <View key={i} wrap={false} style={s.job}>
                 <Text style={s.jobTitle}>{p.name}</Text>
-                {p.description ? <Text>{p.description}</Text> : null}
-                {(p.bullets ?? []).map((b: string, j: number) => (
+                {p.description ? <Text style={s.projDesc}>{p.description}</Text> : null}
+                {(p.bullets ?? []).map((b, j) => (
                   <Bullet key={j}>{b}</Bullet>
                 ))}
               </View>
@@ -108,8 +140,8 @@ export default function ResumePDF({ data }: { data: CustomizeResult }) {
         {Array.isArray(r.education) && r.education.length ? (
           <>
             <Text style={s.sectionTitle}>Education</Text>
-            {r.education.map((e: any, i: number) => (
-              <View key={i} style={s.jobHeaderRow}>
+            {r.education.map((e, i) => (
+              <View key={i} style={s.eduRow}>
                 <Text>
                   <Text style={s.jobTitle}>{e.degree}</Text>
                   {e.institution ? ` — ${e.institution}` : ""}
@@ -124,7 +156,7 @@ export default function ResumePDF({ data }: { data: CustomizeResult }) {
         {Array.isArray(r.certifications) && r.certifications.length ? (
           <>
             <Text style={s.sectionTitle}>Certifications</Text>
-            {r.certifications.map((c: string, i: number) => (
+            {r.certifications.map((c, i) => (
               <Bullet key={i}>{c}</Bullet>
             ))}
           </>
